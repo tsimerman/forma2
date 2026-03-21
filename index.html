@@ -257,7 +257,7 @@ h+='<tr class="'+(p.is_new?'nr':'')+' '+(q===0?'zq':'')+'"><td class="pn" title=
 if(!f.length)h='<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--tx2)">Не знайдено</td></tr>';
 $('ptb').innerHTML=h}
 
-function tf(p){$(p==='rec'?'af-rec':'af-prod').classList.toggle('open');if(p==='rec'){checkItems=[];renderCheckItems();lP().then(fillProdList)}window.scrollTo({top:0,behavior:'smooth'})}
+function tf(p){$(p==='rec'?'af-rec':'af-prod').classList.toggle('open');if(p==='rec'){if(!$('fd').value)$('fd').value=new Date().toISOString().slice(0,10);checkItems=[];renderCheckItems();lP().then(fillProdList)}window.scrollTo({top:0,behavior:'smooth'})}
 let checkItems=[];
 function fillProdList(){const dl=$('prod-list');dl.innerHTML='';const seen={};const names={};P.filter(p=>p.quantity>0).forEach(p=>{const k=normName(p.name);if(!seen[k])seen[k]=0;seen[k]+=+(p.quantity||0);if(!names[k])names[k]=p.name.replace(/\s+/g,' ').trim()});Object.entries(seen).forEach(([k,q])=>{const o=document.createElement('option');o.value=names[k];o.label=names[k]+' ('+q+' шт)';dl.appendChild(o)})}
 function taf(){const t=$('ft').value;const isP=t==='Прибуткова накладна';$('fgh').classList.toggle('hide',!isP);$('fc-picker').style.display=isP?'none':'block';$('fs').value=isP?'':'ФОП Гончарова О.Е.(3442813583)';checkItems=[];renderCheckItems()}
