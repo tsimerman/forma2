@@ -240,7 +240,7 @@ $('sr').innerHTML='<div class="sc"><div class="sl">Надходження '+Y+'<
 function rTb(){const f=R.filter(r=>r.doc_date.startsWith(String(Y)));const g={};f.forEach(r=>{const m=parseInt(r.doc_date.slice(5,7));if(!g[m])g[m]=[];g[m].push(r)});let html='',gH=0,gI=0;
 Object.keys(g).sort((a,b)=>b-a).forEach(m=>{const rr=g[m];let mH=0,mI=0;rr.forEach(r=>{mH+=+(r.nadhodjennya||0);mI+=+(r.vybuttya||0)});gH+=mH;gI+=mI;
 rr.forEach(r=>{const iv=r.doc_type!=='Фіскальний чек',h=+(r.nadhodjennya||0),i=+(r.vybuttya||0);
-html+='<tr class="'+(r.is_new?'nr':'')+'"'+(iv?'':' style="cursor:pointer" onclick="viewCheck(\''+r.id+'\')" title="Натисніть щоб переглянути товари"')+'><td>'+r.doc_date+'</td><td><span class="badge '+(iv?'bi':'bc')+'">'+(iv?'Прибуткова':'Фіск. чек')+'</span></td><td class="nc">'+((r.doc_num)||'')+'</td><td class="supc">'+((r.supplier)||'')+'</td><td class="r '+(h?'ag':'ad')+'">'+(h?fmt(h):'—')+'</td><td class="r '+(i?'ar':'ad')+'">'+(i?fmt(i):'—')+'</td><td>'+(canDel(r)?'<button class="db" onclick="event.stopPropagation();dR(\''+r.id+'\')">✕</button>':'')+'</td></tr>'});
+html+='<tr class="'+(r.is_new?'nr':'')+'" style="cursor:pointer" onclick="viewCheck(\''+r.id+'\')" title="Натисніть щоб переглянути товари"'+'><td>'+r.doc_date+'</td><td><span class="badge '+(iv?'bi':'bc')+'">'+(iv?'Прибуткова':'Фіск. чек')+'</span></td><td class="nc">'+((r.doc_num)||'')+'</td><td class="supc">'+((r.supplier)||'')+'</td><td class="r '+(h?'ag':'ad')+'">'+(h?fmt(h):'—')+'</td><td class="r '+(i?'ar':'ad')+'">'+(i?fmt(i):'—')+'</td><td>'+(canDel(r)?'<button class="db" onclick="event.stopPropagation();dR(\''+r.id+'\')">✕</button>':'')+'</td></tr>'});
 html+='<tr class="sr"><td colspan="4" style="text-align:right">Разом за '+MN[m]+' '+Y+':</td><td class="r ag">'+(mH?fmt(mH):'—')+'</td><td class="r ar">'+(mI?fmt(mI):'—')+'</td><td></td></tr>'});
 html+='<tr class="gr"><td colspan="4" style="text-align:right;color:var(--ac)">РАЗОМ за '+Y+':</td><td class="r" style="color:var(--gn)">'+fmt(gH)+'</td><td class="r" style="color:var(--rd)">'+fmt(gI)+'</td><td></td></tr>';
 $('tb').innerHTML=html}
@@ -278,7 +278,7 @@ if(inCart){inCart.qty+=qty}else{checkItems.push({id:prod.id,name:prod.name,qty})
 $('fc-prod').value='';$('fc-qty').value='1';renderCheckItems()}
 function removeFromCheck(idx){checkItems.splice(idx,1);renderCheckItems()}
 function renderCheckItems(){const el=$('fc-items');if(!checkItems.length){el.innerHTML='';return}
-let h='<table style="width:100%;font-size:12px;table-layout:fixed"><colgroup><col><col style="width:90px"><col style="width:90px"><col style="width:30px"></colgroup><thead><tr><th style="text-align:left">Товар</th><th class="r">На складі</th><th class="r">Списати</th><th></th></tr></thead><tbody>';
+let h='<table style="width:100%;font-size:12px;table-layout:fixed"><colgroup><col><col style="width:70px"><col style="width:70px"><col style="width:30px"></colgroup><thead><tr><th style="text-align:left">Товар</th><th class="r">На складі</th><th class="r">Списати</th><th></th></tr></thead><tbody>';
 checkItems.forEach((c,i)=>{const nn=normName(c.name);const stock=P.filter(p=>normName(p.name)===nn).reduce((s,p)=>s+(+p.quantity||0),0);
 h+='<tr style="background:var(--sf2)"><td style="overflow:hidden;text-overflow:ellipsis">'+c.name+'</td><td class="r" style="color:var(--tx2)">'+stock+' шт</td><td class="r" style="color:var(--or);font-weight:700">\u2212'+c.qty+'</td><td><button class="db" onclick="removeFromCheck('+i+')">\u2715</button></td></tr>'});
 h+='</tbody></table>';el.innerHTML=h}
@@ -492,9 +492,10 @@ async function confirmUpload(){
   $('um-ok').disabled=true;$('um-msg').textContent='Завантаження...';$('um-msg').style.color='var(--ac)';
   
   try{
+    const invItems=d.items.map(it=>({name:it.name,qty:it.qty,price:it.price,sum:it.sum}));
     const{error:e1}=await D.from('records').insert({
       doc_date:invDate,doc_type:'Прибуткова накладна',doc_num:invNum,
-      supplier:sup,nadhodjennya:d.total,vybuttya:0,is_new:true,added_by:U
+      supplier:sup,nadhodjennya:d.total,vybuttya:0,is_new:true,added_by:U,check_items:invItems
     });
     if(e1)throw e1;
     
@@ -527,17 +528,27 @@ async function confirmUpload(){
 
 function viewCheck(id){
   const rec=R.find(r=>r.id===id);if(!rec)return;
-  $('chk-title').textContent='Фіскальний чек №'+(rec.doc_num||'—')+' від '+rec.doc_date;
-  $('chk-sub').textContent='Сума: '+fmt(rec.vybuttya)+' ₴ · Додав: '+(rec.added_by||'—');
+  const isInv=rec.doc_type==='Прибуткова накладна';
+  $('chk-title').textContent=(isInv?'Прибуткова накладна №':'Фіскальний чек №')+(rec.doc_num||'—')+' від '+rec.doc_date;
+  const sumVal=isInv?rec.nadhodjennya:rec.vybuttya;
+  $('chk-sub').textContent='Сума: '+fmt(sumVal)+' ₴ · '+(rec.supplier?rec.supplier+' · ':'')+'Додав: '+(rec.added_by||'—');
   let h='';
   if(rec.check_items&&Array.isArray(rec.check_items)&&rec.check_items.length){
-    h='<table style="width:100%;font-size:13px"><thead><tr><th style="text-align:left">Товар</th><th class="r">К-сть</th></tr></thead><tbody>';
-    rec.check_items.forEach(c=>{
-      h+='<tr><td style="white-space:normal">'+c.name+'</td><td class="r" style="color:var(--or);font-weight:700">'+c.qty+' шт</td></tr>';
-    });
-    h+='</tbody></table>';
+    if(isInv){
+      h='<table style="width:100%;font-size:13px"><thead><tr><th style="text-align:left">Товар</th><th class="r">К-сть</th><th class="r">Ціна</th><th class="r">Сума</th></tr></thead><tbody>';
+      rec.check_items.forEach(c=>{
+        h+='<tr><td style="white-space:normal">'+c.name+'</td><td class="r">'+c.qty+'</td><td class="r">'+fmt(c.price)+'</td><td class="r ag">'+fmt(c.sum)+'</td></tr>';
+      });
+      h+='</tbody></table>';
+    } else {
+      h='<table style="width:100%;font-size:13px"><thead><tr><th style="text-align:left">Товар</th><th class="r">К-сть</th></tr></thead><tbody>';
+      rec.check_items.forEach(c=>{
+        h+='<tr><td style="white-space:normal">'+c.name+'</td><td class="r" style="color:var(--or);font-weight:700">'+c.qty+' шт</td></tr>';
+      });
+      h+='</tbody></table>';
+    }
   } else {
-    h='<div style="color:var(--tx2);padding:20px;text-align:center">Деталізація товарів відсутня (чек був створений без вибору товарів)</div>';
+    h='<div style="color:var(--tx2);padding:20px;text-align:center">Деталізація товарів відсутня</div>';
   }
   $('chk-body').innerHTML=h;
   $('chkmod').classList.add('open');
