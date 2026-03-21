@@ -278,9 +278,9 @@ if(inCart){inCart.qty+=qty}else{checkItems.push({id:prod.id,name:prod.name,qty})
 $('fc-prod').value='';$('fc-qty').value='1';renderCheckItems()}
 function removeFromCheck(idx){checkItems.splice(idx,1);renderCheckItems()}
 function renderCheckItems(){const el=$('fc-items');if(!checkItems.length){el.innerHTML='';return}
-let h='<table style="width:100%;font-size:12px"><thead><tr><th style="text-align:left">Товар</th><th class="r" style="width:100px">На складі</th><th class="r" style="width:100px">Списати</th><th style="width:30px"></th></tr></thead><tbody>';
+let h='<table style="width:100%;font-size:12px;table-layout:fixed"><colgroup><col><col style="width:90px"><col style="width:90px"><col style="width:30px"></colgroup><thead><tr><th style="text-align:left">Товар</th><th class="r">На складі</th><th class="r">Списати</th><th></th></tr></thead><tbody>';
 checkItems.forEach((c,i)=>{const nn=normName(c.name);const stock=P.filter(p=>normName(p.name)===nn).reduce((s,p)=>s+(+p.quantity||0),0);
-h+='<tr style="background:var(--sf2)"><td style="overflow:hidden;text-overflow:ellipsis">'+c.name+'</td><td class="r" style="width:100px;color:var(--tx2)">'+stock+' шт</td><td class="r" style="width:100px;color:var(--or);font-weight:700">\u2212'+c.qty+'</td><td style="width:30px"><button class="db" onclick="removeFromCheck('+i+')">\u2715</button></td></tr>'});
+h+='<tr style="background:var(--sf2)"><td style="overflow:hidden;text-overflow:ellipsis">'+c.name+'</td><td class="r" style="color:var(--tx2)">'+stock+' шт</td><td class="r" style="color:var(--or);font-weight:700">\u2212'+c.qty+'</td><td><button class="db" onclick="removeFromCheck('+i+')">\u2715</button></td></tr>'});
 h+='</tbody></table>';el.innerHTML=h}
 async function addRec(){const d=$('fd').value,t=$('ft').value,n=$('fn').value,s=$('fs').value;
 if(!d||!n){sm('fm1','Дата та номер обов\u2019язкові','var(--rd)');return}
