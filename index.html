@@ -143,15 +143,25 @@ th.r{text-align:right;min-width:100px}
           <div style="display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap;align-items:end">
             <div><label style="font-size:11px;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:6px;display:block">Сума чека, грн</label>
             <input type="number" step="0.01" id="fc-sum" placeholder="0.00" style="width:180px;padding:10px 12px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;color:var(--or);font-size:16px;font-weight:700;outline:none"></div>
+            <div><label style="font-size:11px;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:6px;display:block">Вид</label>
+            <select id="fc-kind" onchange="toggleKind()" style="padding:10px 12px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;color:var(--tx);font-size:14px;outline:none"><option value="product">Товар</option><option value="service">Послуга</option></select></div>
           </div>
-          <label style="font-size:11px;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:8px;display:block">Товари в чеку <span style="color:var(--rd);font-weight:400;text-transform:none">(обов'язково)</span></label>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end">
-            <div style="flex:1;min-width:200px"><input list="prod-list" id="fc-prod" placeholder="Пошук товару..." style="width:100%;padding:10px 12px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;color:var(--tx);font-size:14px;outline:none">
-            <datalist id="prod-list"></datalist></div>
-            <div style="width:80px"><input type="number" id="fc-qty" placeholder="К-сть" min="1" value="1" style="width:100%;padding:10px 12px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;color:var(--tx);font-size:14px;outline:none"></div>
-            <button class="b bg" onclick="addToCheck()" style="white-space:nowrap">+ До чеку</button>
+          <!-- Товар -->
+          <div id="fc-product-section">
+            <label style="font-size:11px;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:8px;display:block">Товари в чеку <span style="color:var(--rd);font-weight:400;text-transform:none">(обов'язково)</span></label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end">
+              <div style="flex:1;min-width:200px"><input list="prod-list" id="fc-prod" placeholder="Пошук товару..." style="width:100%;padding:10px 12px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;color:var(--tx);font-size:14px;outline:none">
+              <datalist id="prod-list"></datalist></div>
+              <div style="width:80px"><input type="number" id="fc-qty" placeholder="К-сть" min="1" value="1" style="width:100%;padding:10px 12px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;color:var(--tx);font-size:14px;outline:none"></div>
+              <button class="b bg" onclick="addToCheck()" style="white-space:nowrap">+ До чеку</button>
+            </div>
+            <div id="fc-items" style="margin-top:12px"></div>
           </div>
-          <div id="fc-items" style="margin-top:12px"></div>
+          <!-- Послуга -->
+          <div id="fc-service-section" style="display:none">
+            <label style="font-size:11px;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:8px;display:block">Назва послуги</label>
+            <input id="fc-svc-name" placeholder="Наприклад: Встановлення захисного скла" style="width:100%;padding:10px 12px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;color:var(--tx);font-size:14px;outline:none">
+          </div>
         </div>
       </div>
       <div class="fa"><button class="b bp" onclick="addRec()">Додати</button><button class="b" onclick="tf('rec')">Скасувати</button><span id="fm1" class="fm"></span></div>
@@ -260,7 +270,8 @@ $('ptb').innerHTML=h}
 function tf(p){$(p==='rec'?'af-rec':'af-prod').classList.toggle('open');if(p==='rec'){if(!$('fd').value)$('fd').value=new Date().toISOString().slice(0,10);checkItems=[];renderCheckItems();lP().then(fillProdList)}window.scrollTo({top:0,behavior:'smooth'})}
 let checkItems=[];
 function fillProdList(){const dl=$('prod-list');dl.innerHTML='';const seen={};const names={};P.filter(p=>p.quantity>0).forEach(p=>{const k=normName(p.name);if(!seen[k])seen[k]=0;seen[k]+=+(p.quantity||0);if(!names[k])names[k]=p.name.replace(/\s+/g,' ').trim()});Object.entries(seen).forEach(([k,q])=>{const o=document.createElement('option');o.value=names[k];o.label=names[k]+' ('+q+' шт)';dl.appendChild(o)})}
-function taf(){const t=$('ft').value;const isP=t==='Прибуткова накладна';$('fgh').classList.toggle('hide',!isP);$('fc-picker').style.display=isP?'none':'block';$('fs').value=isP?'':'ФОП Гончарова О.Е.(3442813583)';checkItems=[];renderCheckItems()}
+function taf(){const t=$('ft').value;const isP=t==='Прибуткова накладна';$('fgh').classList.toggle('hide',!isP);$('fc-picker').style.display=isP?'none':'block';$('fs').value=isP?'':'ФОП Гончарова О.Е.(3442813583)';checkItems=[];renderCheckItems();if(!isP)toggleKind()}
+function toggleKind(){const isSvc=$('fc-kind').value==='service';$('fc-product-section').style.display=isSvc?'none':'block';$('fc-service-section').style.display=isSvc?'block':'none'}
 function normName(s){return s.replace(/\s+/g,' ').trim().toLowerCase()}
 function addToCheck(){const name=$('fc-prod').value.trim();const qty=parseInt($('fc-qty').value)||1;if(!name)return;
 const nn=normName(name);
@@ -293,30 +304,42 @@ if(t==='Прибуткова накладна'){
 } else {
   const total=parseFloat($('fc-sum').value)||0;
   if(!total){sm('fm1','Введіть суму чека','var(--rd)');return}
-  if(!checkItems.length){sm('fm1','Додайте хоча б один товар до чеку','var(--rd)');return}
-  const ciJson=checkItems.map(c=>({id:c.id,name:c.name,qty:c.qty}));
-  await lP();
-  for(const c of checkItems){
-    const prod=P.find(p=>p.id===c.id);
-    const avail=prod?(+prod.quantity||0):0;
-    if(avail<c.qty){sm('fm1','Недостатньо "'+c.name+'" (є '+avail+', потрібно '+c.qty+')','var(--rd)');return}
+  const isSvc=$('fc-kind').value==='service';
+  if(isSvc){
+    // Послуга — без списання зі складу
+    const svcName=$('fc-svc-name').value.trim();
+    if(!svcName){sm('fm1','Введіть назву послуги','var(--rd)');return}
+    const ciJson=[{name:svcName,qty:1,type:'service'}];
+    const ins=await D.from('records').insert({doc_date:d,doc_type:t,doc_num:n,supplier:s,nadhodjennya:0,vybuttya:total,is_new:true,added_by:U,check_items:ciJson});
+    if(ins.error)throw new Error(ins.error.message);
+    msg='Додано! Послуга: '+svcName;
+  } else {
+    // Товар — списання зі складу
+    if(!checkItems.length){sm('fm1','Додайте хоча б один товар до чеку','var(--rd)');return}
+    const ciJson=checkItems.map(c=>({id:c.id,name:c.name,qty:c.qty}));
+    await lP();
+    for(const c of checkItems){
+      const prod=P.find(p=>p.id===c.id);
+      const avail=prod?(+prod.quantity||0):0;
+      if(avail<c.qty){sm('fm1','Недостатньо "'+c.name+'" (є '+avail+', потрібно '+c.qty+')','var(--rd)');return}
+    }
+    const ins=await D.from('records').insert({doc_date:d,doc_type:t,doc_num:n,supplier:s,nadhodjennya:0,vybuttya:total,is_new:true,added_by:U,check_items:ciJson});
+    if(ins.error){
+      const ins2=await D.from('records').insert({doc_date:d,doc_type:t,doc_num:n,supplier:s,nadhodjennya:0,vybuttya:total,is_new:true,added_by:U});
+      if(ins2.error)throw new Error(ins2.error.message);
+    }
+    let ok=0;
+    for(const c of checkItems){
+      const prod=P.find(p=>p.id===c.id);if(!prod)continue;
+      const nq=Math.max(0,(+prod.quantity||0)-c.qty);const nt=nq*(+(prod.price||0));
+      const u=await D.from('products').update({quantity:nq,total:nt}).eq('id',c.id);
+      if(!u.error)ok++;
+    }
+    msg='Додано! Списано '+ok+' товарів';
   }
-  const ins=await D.from('records').insert({doc_date:d,doc_type:t,doc_num:n,supplier:s,nadhodjennya:0,vybuttya:total,is_new:true,added_by:U,check_items:ciJson});
-  if(ins.error){
-    const ins2=await D.from('records').insert({doc_date:d,doc_type:t,doc_num:n,supplier:s,nadhodjennya:0,vybuttya:total,is_new:true,added_by:U});
-    if(ins2.error)throw new Error(ins2.error.message);
-  }
-  let ok=0;
-  for(const c of checkItems){
-    const prod=P.find(p=>p.id===c.id);if(!prod)continue;
-    const nq=Math.max(0,(+prod.quantity||0)-c.qty);const nt=nq*(+(prod.price||0));
-    const u=await D.from('products').update({quantity:nq,total:nt}).eq('id',c.id);
-    if(!u.error)ok++;
-  }
-  msg='Додано! Списано '+ok+' товарів';
 }
 }catch(err){sm('fm1','Помилка: '+err.message,'var(--rd)');return}
-sm('fm1',msg,'var(--gn)');$('fn').value='';$('fh').value='';$('fc-sum').value='';checkItems=[];renderCheckItems();Y=parseInt(d.slice(0,4));await Promise.all([lR(),lP()])}
+sm('fm1',msg,'var(--gn)');$('fn').value='';$('fh').value='';$('fc-sum').value='';$('fc-svc-name').value='';$('fc-kind').value='product';toggleKind();checkItems=[];renderCheckItems();Y=parseInt(d.slice(0,4));await Promise.all([lR(),lP()])}
 async function dR(id){if(!confirm('Видалити запис?\nЯкщо це фіскальний чек з товарами — залишки повернуться.'))return;
   try{
     const rec=R.find(r=>r.id===id);
