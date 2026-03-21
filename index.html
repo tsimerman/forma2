@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Форма 2 | ФОП Гончарова</title>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0c0f14;--sf:#151922;--sf2:#1c2330;--bd:#2a3040;--tx:#e8eaf0;--tx2:#8892a4;--ac:#4f8cff;--ac2:#3a6fd8;--gn:#2dd4a0;--rd:#ff6b6b;--or:#ffb347;--pp:#b48eff;--r:10px}
+body{font-family:'Onest',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
+.hide{display:none!important}
+input,select,button{font-family:inherit}
+#setup{padding:40px 24px;max-width:600px;margin:0 auto}
+#login{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.lcard{background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:48px 40px;max-width:400px;width:100%;text-align:center}
+.lcard h1{font-size:22px;font-weight:700;margin-bottom:6px}
+.lcard p{color:var(--tx2);font-size:14px;margin-bottom:28px}
+.lcard input{width:100%;padding:14px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;color:var(--tx);font-size:15px;outline:none;margin-bottom:16px}
+.b{padding:8px 16px;border:1px solid var(--bd);border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;background:var(--sf2);color:var(--tx)}
+.b:hover{border-color:var(--ac);color:var(--ac)}
+.bp{background:var(--ac);color:#fff;border-color:var(--ac)}.bp:hover{background:var(--ac2)}
+.bg{background:var(--gn);color:#0c0f14;border-color:var(--gn)}
+.bpp{background:var(--pp);color:#0c0f14;border-color:var(--pp)}
+.bor{background:var(--or);color:#0c0f14;border-color:var(--or)}
+.bw{width:100%;padding:14px;font-size:15px}
+.bd{border-color:var(--rd);color:var(--rd)}.bd:hover{background:var(--rd);color:#fff}
+header{background:var(--sf);border-bottom:1px solid var(--bd);padding:16px 24px;position:sticky;top:0;z-index:50}
+.htop{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.htop h1{font-size:18px;font-weight:700}.htop h1 span{color:var(--ac);font-weight:800}
+.hsub{color:var(--tx2);font-size:12px;margin-top:2px}
+.hact{display:flex;gap:8px;flex-wrap:wrap}
+.mtabs{display:flex;gap:0;margin-top:14px;border-bottom:2px solid var(--bd)}
+.mt{padding:10px 28px;font-size:14px;font-weight:600;cursor:pointer;background:transparent;border:none;color:var(--tx2);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:inherit}
+.mt.on{color:var(--ac);border-bottom-color:var(--ac)}.mt:hover:not(.on){color:var(--tx)}
+.stabs{display:flex;gap:2px;margin-top:8px}
+.st{padding:8px 24px;border-radius:8px 8px 0 0;font-size:13px;font-weight:500;cursor:pointer;background:transparent;border:none;color:var(--tx2);font-family:inherit}
+.st.on{background:var(--bg);color:var(--tx);font-weight:700}
+.srow{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;padding:16px 24px}
+.sc{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:16px 20px}
+.sl{font-size:11px;color:var(--tx2);text-transform:uppercase;letter-spacing:1px;font-weight:600}
+.sv{font-size:24px;font-weight:800;margin-top:4px}.sv.g{color:var(--gn)}.sv.r{color:var(--rd)}.sv.p{color:var(--pp)}
+.af{display:none;margin:16px 24px 0;background:var(--sf);border:1px solid rgba(255,179,71,.25);border-radius:var(--r);padding:24px;animation:sd .2s}
+@keyframes sd{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.af.open{display:block}
+.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.fg label{display:block;font-size:11px;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:6px}
+.fg input,.fg select{width:100%;padding:10px 12px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;color:var(--tx);font-size:14px;outline:none}
+.fg input:focus,.fg select:focus{border-color:var(--ac)}
+.fa{margin-top:16px;display:flex;gap:10px;align-items:center}
+.fm{font-size:13px;font-weight:600}
+.tw{padding:16px 24px}
+.tc{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden}
+.ts{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{padding:10px 12px;text-align:left;font-weight:600;color:var(--tx2);background:var(--sf2);border-bottom:1px solid var(--bd);white-space:nowrap;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+td{padding:8px 12px;border-bottom:1px solid rgba(42,48,64,.5);white-space:nowrap}
+tr{transition:background .15s}tr:hover{background:rgba(79,140,255,.04)}
+tr[style*="cursor"]:hover{background:rgba(79,140,255,.1)}
+tr.nr{background:rgba(255,179,71,.1);border-left:3px solid var(--or)}
+tr.sr{background:var(--sf2)}tr.sr td{font-weight:700;padding:10px 12px;border-bottom:2px solid var(--bd)}
+tr.gr{background:var(--bg)}tr.gr td{font-weight:800;font-size:14px;padding:14px 12px}
+tr.zq{opacity:.4}
+.badge{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700}
+.bi{background:rgba(45,212,160,.08);color:var(--gn);border:1px solid rgba(45,212,160,.2)}
+.bc{background:rgba(79,140,255,.12);color:var(--ac)}
+.bs{background:rgba(180,142,255,.1);color:var(--pp);font-size:12px;font-weight:700;padding:4px 10px;white-space:nowrap}
+#ptb td:nth-child(2),#ptb td:nth-child(3),#ptb td:nth-child(4){text-align:right;min-width:80px}
+#tb td:nth-child(5),#tb td:nth-child(6){text-align:right;min-width:100px}
+th.r{text-align:right;min-width:100px}
+.nc{font-family:monospace;font-size:12px;max-width:140px;overflow:hidden;text-overflow:ellipsis}
+.supc{max-width:220px;overflow:hidden;text-overflow:ellipsis;font-size:12px}
+.pn{max-width:350px;overflow:hidden;text-overflow:ellipsis}
+.ag{color:var(--gn);font-weight:600}.ar{color:var(--rd);font-weight:600}.ad{color:var(--tx2);opacity:.4}
+.db{background:none;border:none;color:var(--rd);cursor:pointer;font-size:14px;opacity:.5;padding:4px}.db:hover{opacity:1}
+.od{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px;animation:pu 2s infinite}
+.od.on{background:var(--gn)}.od.off{background:var(--rd);animation:none}
+@keyframes pu{0%,100%{opacity:1}50%{opacity:.4}}
+.ft{padding:16px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.fi{font-size:12px;color:var(--tx2)}
+.sb{padding:8px 14px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;color:var(--tx);font-size:13px;outline:none;width:280px}
+.sb:focus{border-color:var(--ac)}
+.ps{display:none}.ps.on{display:block}
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal{background:var(--sf);border:1px solid var(--bd);border-radius:16px;max-width:800px;width:100%;max-height:85vh;overflow:auto;padding:28px}
+.modal h2{font-size:18px;margin-bottom:4px}.modal .msub{color:var(--tx2);font-size:13px;margin-bottom:20px}
+.modal table{font-size:12px}.modal th,.modal td{padding:6px 10px}
+.modal .minfo{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.modal .mi{background:var(--sf2);padding:12px;border-radius:8px}
+.modal .mi span{color:var(--tx2);font-size:11px;display:block;margin-bottom:2px}
+.modal .mi strong{font-size:15px}
+.modal .mact{margin-top:20px;display:flex;gap:10px;align-items:center}
+.modal .mact .fm{flex:1}
+.upload-zone{border:2px dashed var(--bd);border-radius:12px;padding:40px;text-align:center;cursor:pointer;transition:all .2s;margin:16px 24px 0}
+.upload-zone:hover{border-color:var(--or);background:rgba(255,179,71,.04)}
+.upload-zone.drag{border-color:var(--or);background:rgba(255,179,71,.08)}
+.upload-zone p{color:var(--tx2);font-size:14px;margin-top:8px}
+.upload-zone .icon{font-size:36px}
+@media(max-width:768px){.srow{grid-template-columns:1fr 1fr}.hact{width:100%}.b{flex:1;text-align:center;padding:10px 8px}.fg{grid-template-columns:1fr}.tw{padding:8px}header{padding:12px 16px}.sb{width:100%}.mt{padding:10px 16px;font-size:13px}.modal .minfo{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="setup" class="hide"></div>
+<div id="login" class="hide">
+  <div class="lcard">
+    <h1>Форма 2</h1>
+    <p>Облік товарних запасів · ФОП Гончарова</p>
+    <input id="l-name" placeholder="Ваше ім'я" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="b bp bw" onclick="doLogin()">Увійти</button>
+  </div>
+</div>
+<div id="app" class="hide">
+  <header>
+    <div class="htop">
+      <div>
+        <h1><span>Форма 2</span> — Облік товарних запасів</h1>
+        <div class="hsub">ФОП Гончарова О.Е. (3442813583) · м.Умань, вул.Шевченка 23-а · <span class="od on" id="dot"></span><span id="ost">онлайн</span></div>
+      </div>
+      <div class="hact" id="hact"></div>
+    </div>
+    <div class="mtabs">
+      <button class="mt on" id="mt-rec" onclick="go('rec')">Форма 2</button>
+      <button class="mt" id="mt-prod" onclick="go('prod')">Товари</button>
+    </div>
+    <div class="stabs" id="ytabs"></div>
+  </header>
+  <div id="p-rec" class="ps on">
+    <div class="af" id="af-rec">
+      <div class="fg">
+        <div><label>Дата</label><input type="date" id="fd"></div>
+        <div><label>Тип</label><select id="ft" onchange="taf()"><option value="Фіскальний чек">Фіскальний чек</option><option value="Прибуткова накладна">Прибуткова накладна</option></select></div>
+        <div><label>№</label><input id="fn" placeholder="Номер"></div>
+        <div><label>Постачальник</label><input id="fs" value="ФОП Гончарова О.Е.(3442813583)"></div>
+        <div id="fgh" class="hide"><label>Надходження, грн</label><input type="number" step="0.01" id="fh"></div>
+      </div>
+      <!-- FISCAL CHECK -->
+      <div id="fc-picker">
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--bd)">
+          <div style="display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap;align-items:end">
+            <div><label style="font-size:11px;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:6px;display:block">Сума чека, грн</label>
+            <input type="number" step="0.01" id="fc-sum" placeholder="0.00" style="width:180px;padding:10px 12px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;color:var(--or);font-size:16px;font-weight:700;outline:none"></div>
+          </div>
+          <label style="font-size:11px;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:8px;display:block">Товари в чеку <span style="color:var(--rd);font-weight:400;text-transform:none">(обов'язково)</span></label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end">
+            <div style="flex:1;min-width:200px"><input list="prod-list" id="fc-prod" placeholder="Пошук товару..." style="width:100%;padding:10px 12px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;color:var(--tx);font-size:14px;outline:none">
+            <datalist id="prod-list"></datalist></div>
+            <div style="width:80px"><input type="number" id="fc-qty" placeholder="К-сть" min="1" value="1" style="width:100%;padding:10px 12px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;color:var(--tx);font-size:14px;outline:none"></div>
+            <button class="b bg" onclick="addToCheck()" style="white-space:nowrap">+ До чеку</button>
+          </div>
+          <div id="fc-items" style="margin-top:12px"></div>
+        </div>
+      </div>
+      <div class="fa"><button class="b bp" onclick="addRec()">Додати</button><button class="b" onclick="tf('rec')">Скасувати</button><span id="fm1" class="fm"></span></div>
+    </div>
+    <div class="srow" id="sr"></div>
+    <div class="tw"><div class="tc"><div class="ts"><table><thead><tr><th>Дата</th><th>Вид</th><th>№</th><th>Постачальник</th><th class="r">Надходження</th><th class="r">Вибуття</th><th></th></tr></thead><tbody id="tb"></tbody></table></div></div></div>
+  </div>
+  <div id="p-prod" class="ps">
+    <div class="af" id="af-prod">
+      <div class="fg">
+        <div style="grid-column:1/-1"><label>Назва товару</label><input id="pn" placeholder="Чохол Proove Force Armor..."></div>
+        <div><label>Кількість</label><input type="number" id="pq" placeholder="0"></div>
+        <div><label>Ціна закупки</label><input type="number" step="0.01" id="pp" placeholder="0.00"></div>
+        <div><label>№ накладної</label><input id="pi" placeholder="МЮ-77"></div>
+        <div><label>Постачальник</label><input id="psp" placeholder="ФОП Матинга Ю.О."></div>
+      </div>
+      <div class="fa"><button class="b bp" onclick="addProd()">Додати товар</button><button class="b" onclick="tf('prod')">Скасувати</button><span id="fm2" class="fm"></span></div>
+    </div>
+    <div class="srow" id="psr"></div>
+    <div style="padding:0 24px 8px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+      <input class="sb" id="psrch" placeholder="Пошук товару..." oninput="rProd()">
+      <label style="font-size:12px;color:var(--tx2);display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="phz" onchange="rProd()"> Сховати нульові</label>
+    </div>
+    <div class="tw" style="padding-top:0"><div class="tc"><div class="ts"><table><thead><tr><th>Назва</th><th class="r">Залишок</th><th class="r">Ціна</th><th class="r">Сума</th><th>Накладна</th><th>Постачальник</th><th></th></tr></thead><tbody id="ptb"></tbody></table></div></div></div>
+  </div>
+  <div class="ft"><div class="fi" id="fti">Завантаження...</div><div style="display:flex;gap:8px"><button class="b" onclick="location.reload()" style="font-size:11px">Оновити</button><button class="b bd" onclick="doLogout()" style="font-size:11px">Вийти</button></div></div>
+</div>
+
+<!-- UPLOAD MODAL -->
+<div class="modal-bg" id="umod">
+  <div class="modal">
+    <h2 id="um-title">Завантаження накладної</h2>
+    <div class="msub" id="um-sub"></div>
+    <div class="minfo" id="um-info"></div>
+    <div class="tc"><div class="ts">
+      <table><thead><tr><th>№</th><th>Назва товару</th><th class="r">К-сть</th><th class="r">Ціна</th><th class="r">Сума</th></tr></thead>
+      <tbody id="um-tb"></tbody></table>
+    </div></div>
+    <div class="mact">
+      <button class="b bg" id="um-ok" onclick="confirmUpload()">Підтвердити та додати</button>
+      <button class="b" onclick="closeModal()">Скасувати</button>
+      <span id="um-msg" class="fm"></span>
+    </div>
+  </div>
+</div>
+<input type="file" id="fup" accept=".xlsx,.xls" style="display:none" onchange="handleFile(this)">
+
+<!-- CHECK DETAILS MODAL -->
+<div class="modal-bg" id="chkmod">
+  <div class="modal">
+    <h2 id="chk-title">Деталі чека</h2>
+    <div class="msub" id="chk-sub"></div>
+    <div id="chk-body"></div>
+    <div class="mact"><button class="b" onclick="$('chkmod').classList.remove('open')">Закрити</button></div>
+  </div>
+</div>
+<button id="gotop" onclick="window.scrollTo({top:0,behavior:'smooth'})" style="display:none;position:fixed;bottom:24px;right:24px;width:44px;height:44px;border-radius:50%;background:var(--ac);color:#fff;border:none;font-size:20px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.4);z-index:90;transition:opacity .2s">↑</button>
+
+<script>
+const MN=['','Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
+const fmt=n=>n?Number(n).toLocaleString('uk-UA',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+let D=null,R=[],P=[],Y=2026,U='',PG='rec',UP_DATA=null;
+function gc(){
+  return {u:'https://iehioeaekcabfzglspep.supabase.co',k:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImllaGlvZWFla2NhYmZ6Z2xzcGVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NDg4MjIsImV4cCI6MjA4OTIyNDgyMn0.mFfALHBVVzeWY2fKDVPYktQrbtDQUeiB7s0nHoqKxms'};
+}
+function doLogin(){U=document.getElementById('l-name').value.trim()||'user';localStorage.setItem('f2u',U);showApp()}
+function doLogout(){localStorage.removeItem('f2u');location.reload()}
+function init(){$('setup').style.display='none';U=localStorage.getItem('f2u')||'';if(!U){$('login').classList.remove('hide');return}showApp()}
+function $(id){return document.getElementById(id)}
+async function showApp(){$('login').classList.add('hide');$('setup').style.display='none';$('app').classList.remove('hide');
+  const c=gc();D=window.supabase.createClient(c.u,c.k);
+  D.channel('ch').on('postgres_changes',{event:'*',schema:'public',table:'records'},()=>lR()).on('postgres_changes',{event:'*',schema:'public',table:'products'},()=>lP()).subscribe(s=>{$('dot').className=s==='SUBSCRIBED'?'od on':'od off';$('ost').textContent=s==='SUBSCRIBED'?'онлайн':'офлайн'});
+  await Promise.all([lR(),lP()])}
+async function lR(){try{const{data,error}=await D.from('records').select('*').order('doc_date',{ascending:false}).order('created_at',{ascending:false});if(error)throw error;R=data||[];if(PG==='rec')uRec()}catch(e){$('fti').textContent='Помилка: '+e.message}}
+async function lP(){try{const{data,error}=await D.from('products').select('*').order('name');if(error)throw error;P=data||[];if(PG==='prod')uProd()}catch(e){}}
+
+function go(p){PG=p;$('mt-rec').classList.toggle('on',p==='rec');$('mt-prod').classList.toggle('on',p==='prod');$('p-rec').classList.toggle('on',p==='rec');$('p-prod').classList.toggle('on',p==='prod');$('af-rec').classList.remove('open');$('af-prod').classList.remove('open');if(p==='rec'){uRec();ha('rec')}else{uProd();ha('prod')}}
+function ha(p){const e=$('hact');
+if(p==='rec')e.innerHTML='<button class="b bg" onclick="tf(\'rec\')">+ Запис</button><button class="b bor" onclick="$(\'fup\').click()">📄 Накладна Excel</button><button class="b" onclick="eCSV()">CSV</button><button class="b" onclick="cNF()">Зняти виділення</button>';
+else e.innerHTML='<button class="b bpp" onclick="tf(\'prod\')">+ Товар</button><button class="b bor" onclick="$(\'fup\').click()">📄 Накладна Excel</button><button class="b" onclick="ePCSV()">CSV</button><button class="b" onclick="cPNF()">Зняти виділення</button>'}
+
+function uRec(){rYT();rSt();rTb();const f=R.filter(r=>r.doc_date.startsWith(String(Y)));$('fti').textContent='Записів: '+f.length+' · Нових: '+f.filter(r=>r.is_new).length+' · Всього: '+R.length;ha('rec')}
+function rYT(){const yy=[...new Set(R.map(r=>parseInt(r.doc_date.slice(0,4))))].sort();if(!yy.includes(Y)&&yy.length)Y=yy[yy.length-1];$('ytabs').innerHTML=yy.map(y=>'<button class="st'+(y===Y?' on':'')+'" onclick="Y='+y+';uRec()">'+y+'</button>').join('');$('ytabs').style.display=PG==='rec'?'flex':'none'}
+function rSt(){const f=R.filter(r=>r.doc_date.startsWith(String(Y)));let h=0,i=0,c=0,v=0;f.forEach(r=>{h+=+(r.nadhodjennya||0);i+=+(r.vybuttya||0);r.doc_type==='Фіскальний чек'?c++:v++});
+$('sr').innerHTML='<div class="sc"><div class="sl">Надходження '+Y+'</div><div class="sv g">'+fmt(h)+' ₴</div></div><div class="sc"><div class="sl">Вибуття '+Y+'</div><div class="sv r">'+fmt(i)+' ₴</div></div><div class="sc"><div class="sl">Чеків</div><div class="sv">'+c+'</div></div><div class="sc"><div class="sl">Накладних</div><div class="sv">'+v+'</div></div>'}
+function rTb(){const f=R.filter(r=>r.doc_date.startsWith(String(Y)));const g={};f.forEach(r=>{const m=parseInt(r.doc_date.slice(5,7));if(!g[m])g[m]=[];g[m].push(r)});let html='',gH=0,gI=0;
+Object.keys(g).sort((a,b)=>b-a).forEach(m=>{const rr=g[m];let mH=0,mI=0;rr.forEach(r=>{mH+=+(r.nadhodjennya||0);mI+=+(r.vybuttya||0)});gH+=mH;gI+=mI;
+rr.forEach(r=>{const iv=r.doc_type!=='Фіскальний чек',h=+(r.nadhodjennya||0),i=+(r.vybuttya||0);
+html+='<tr class="'+(r.is_new?'nr':'')+'"'+(iv?'':' style="cursor:pointer" onclick="viewCheck(\''+r.id+'\')" title="Натисніть щоб переглянути товари"')+'><td>'+r.doc_date+'</td><td><span class="badge '+(iv?'bi':'bc')+'">'+(iv?'Прибуткова':'Фіск. чек')+'</span></td><td class="nc">'+((r.doc_num)||'')+'</td><td class="supc">'+((r.supplier)||'')+'</td><td class="r '+(h?'ag':'ad')+'">'+(h?fmt(h):'—')+'</td><td class="r '+(i?'ar':'ad')+'">'+(i?fmt(i):'—')+'</td><td>'+(canDel(r)?'<button class="db" onclick="event.stopPropagation();dR(\''+r.id+'\')">✕</button>':'')+'</td></tr>'});
+html+='<tr class="sr"><td colspan="4" style="text-align:right">Разом за '+MN[m]+' '+Y+':</td><td class="r ag">'+(mH?fmt(mH):'—')+'</td><td class="r ar">'+(mI?fmt(mI):'—')+'</td><td></td></tr>'});
+html+='<tr class="gr"><td colspan="4" style="text-align:right;color:var(--ac)">РАЗОМ за '+Y+':</td><td class="r" style="color:var(--gn)">'+fmt(gH)+'</td><td class="r" style="color:var(--rd)">'+fmt(gI)+'</td><td></td></tr>';
+$('tb').innerHTML=html}
+
+function uProd(){$('ytabs').style.display='none';rPS();rProd();$('fti').textContent='Товарів: '+P.length+' · В наявності: '+P.filter(p=>p.quantity>0).length;ha('prod')}
+function rPS(){let t=0,it=0,is=0;P.forEach(p=>{t+=+(p.total||0);it+=+(p.quantity||0);if(p.quantity>0)is++});
+$('psr').innerHTML='<div class="sc"><div class="sl">Позицій</div><div class="sv">'+P.length+'</div></div><div class="sc"><div class="sl">В наявності</div><div class="sv p">'+is+'</div></div><div class="sc"><div class="sl">На складі</div><div class="sv">'+it+' шт</div></div><div class="sc"><div class="sl">Вартість</div><div class="sv g">'+fmt(t)+' ₴</div></div>'}
+function canDel(rec){if(!rec.is_new)return false;const created=new Date(rec.created_at);const now=new Date();return(now-created)<24*60*60*1000}
+function rProd(){const s=($('psrch').value||'').toLowerCase(),hz=$('phz').checked;let f=P;if(s)f=f.filter(p=>p.name.toLowerCase().includes(s));if(hz)f=f.filter(p=>p.quantity>0);
+f=f.slice().sort((a,b)=>{const aq=+(a.quantity||0),bq=+(b.quantity||0);if(aq>0&&bq===0)return -1;if(aq===0&&bq>0)return 1;if(aq===0&&bq===0)return 0;return(+(b.price||0))-(+(a.price||0))});
+let h='';
+f.forEach(p=>{const q=+(p.quantity||0),t=+(p.total||0);const del=canDel(p);
+h+='<tr class="'+(p.is_new?'nr':'')+' '+(q===0?'zq':'')+'"><td class="pn" title="'+p.name+'">'+p.name+'</td><td class="r"><span class="bs">'+q+' '+(p.unit||'шт')+'</span></td><td class="r">'+fmt(+(p.price||0))+'</td><td class="r ag">'+(t?fmt(t):'—')+'</td><td class="nc">'+(p.invoice_num||'—')+'</td><td class="supc">'+(p.supplier||'—')+'</td><td>'+(del?'<button class="db" onclick="dP(\''+p.id+'\')">✕</button>':'')+'</td></tr>'});
+if(!f.length)h='<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--tx2)">Не знайдено</td></tr>';
+$('ptb').innerHTML=h}
+
+function tf(p){$(p==='rec'?'af-rec':'af-prod').classList.toggle('open');if(p==='rec'){checkItems=[];renderCheckItems();lP().then(fillProdList)}window.scrollTo({top:0,behavior:'smooth'})}
+let checkItems=[];
+function fillProdList(){const dl=$('prod-list');dl.innerHTML='';const seen={};const names={};P.filter(p=>p.quantity>0).forEach(p=>{const k=normName(p.name);if(!seen[k])seen[k]=0;seen[k]+=+(p.quantity||0);if(!names[k])names[k]=p.name.replace(/\s+/g,' ').trim()});Object.entries(seen).forEach(([k,q])=>{const o=document.createElement('option');o.value=names[k];o.label=names[k]+' ('+q+' шт)';dl.appendChild(o)})}
+function taf(){const t=$('ft').value;const isP=t==='Прибуткова накладна';$('fgh').classList.toggle('hide',!isP);$('fc-picker').style.display=isP?'none':'block';$('fs').value=isP?'':'ФОП Гончарова О.Е.(3442813583)';checkItems=[];renderCheckItems()}
+function normName(s){return s.replace(/\s+/g,' ').trim().toLowerCase()}
+function addToCheck(){const name=$('fc-prod').value.trim();const qty=parseInt($('fc-qty').value)||1;if(!name)return;
+const nn=normName(name);
+const matches=P.filter(p=>normName(p.name)===nn&&(+p.quantity||0)>0);
+if(!matches.length){
+  const any=P.filter(p=>normName(p.name)===nn);
+  if(any.length){sm('fm1','Залишок: 0 шт по всіх записах','var(--rd)')}
+  else{sm('fm1','Товар не знайдено','var(--rd)')}
+  return;
+}
+const prod=matches.sort((a,b)=>(+b.quantity||0)-(+a.quantity||0))[0];
+const inCart=checkItems.find(c=>c.id===prod.id);const already=inCart?inCart.qty:0;const avail=(+prod.quantity)-already;
+if(qty>avail){sm('fm1','Залишок: '+prod.quantity+' шт'+(already?' (в чеку: '+already+')':'')+'. Макс: '+avail,'var(--rd)');return}
+if(inCart){inCart.qty+=qty}else{checkItems.push({id:prod.id,name:prod.name,qty})}
+$('fc-prod').value='';$('fc-qty').value='1';renderCheckItems()}
+function removeFromCheck(idx){checkItems.splice(idx,1);renderCheckItems()}
+function renderCheckItems(){const el=$('fc-items');if(!checkItems.length){el.innerHTML='';return}
+let h='<table style="width:100%;font-size:12px"><thead><tr><th style="text-align:left">Товар</th><th class="r">На складі</th><th class="r">Списати</th><th></th></tr></thead><tbody>';
+checkItems.forEach((c,i)=>{const nn=normName(c.name);const stock=P.filter(p=>normName(p.name)===nn).reduce((s,p)=>s+(+p.quantity||0),0);
+h+='<tr style="background:var(--sf2)"><td style="max-width:280px;overflow:hidden;text-overflow:ellipsis">'+c.name+'</td><td class="r" style="color:var(--tx2)">'+stock+' шт</td><td class="r" style="color:var(--or);font-weight:700">\u2212'+c.qty+'</td><td><button class="db" onclick="removeFromCheck('+i+')">\u2715</button></td></tr>'});
+h+='</tbody></table>';el.innerHTML=h}
+async function addRec(){const d=$('fd').value,t=$('ft').value,n=$('fn').value,s=$('fs').value;
+if(!d||!n){sm('fm1','Дата та номер обов\u2019язкові','var(--rd)');return}
+let msg='Додано!';
+try{
+if(t==='Прибуткова накладна'){
+  const h=parseFloat($('fh').value)||0;
+  const{error}=await D.from('records').insert({doc_date:d,doc_type:t,doc_num:n,supplier:s,nadhodjennya:h,vybuttya:0,is_new:true,added_by:U});
+  if(error)throw new Error(error.message);
+} else {
+  const total=parseFloat($('fc-sum').value)||0;
+  if(!total){sm('fm1','Введіть суму чека','var(--rd)');return}
+  if(!checkItems.length){sm('fm1','Додайте хоча б один товар до чеку','var(--rd)');return}
+  const ciJson=checkItems.map(c=>({id:c.id,name:c.name,qty:c.qty}));
+  await lP();
+  for(const c of checkItems){
+    const prod=P.find(p=>p.id===c.id);
+    const avail=prod?(+prod.quantity||0):0;
+    if(avail<c.qty){sm('fm1','Недостатньо "'+c.name+'" (є '+avail+', потрібно '+c.qty+')','var(--rd)');return}
+  }
+  const ins=await D.from('records').insert({doc_date:d,doc_type:t,doc_num:n,supplier:s,nadhodjennya:0,vybuttya:total,is_new:true,added_by:U,check_items:ciJson});
+  if(ins.error){
+    const ins2=await D.from('records').insert({doc_date:d,doc_type:t,doc_num:n,supplier:s,nadhodjennya:0,vybuttya:total,is_new:true,added_by:U});
+    if(ins2.error)throw new Error(ins2.error.message);
+  }
+  let ok=0;
+  for(const c of checkItems){
+    const prod=P.find(p=>p.id===c.id);if(!prod)continue;
+    const nq=Math.max(0,(+prod.quantity||0)-c.qty);const nt=nq*(+(prod.price||0));
+    const u=await D.from('products').update({quantity:nq,total:nt}).eq('id',c.id);
+    if(!u.error)ok++;
+  }
+  msg='Додано! Списано '+ok+' товарів';
+}
+}catch(err){sm('fm1','Помилка: '+err.message,'var(--rd)');return}
+sm('fm1',msg,'var(--gn)');$('fn').value='';$('fh').value='';$('fc-sum').value='';checkItems=[];renderCheckItems();Y=parseInt(d.slice(0,4));await Promise.all([lR(),lP()])}
+async function dR(id){if(!confirm('Видалити запис?\nЯкщо це фіскальний чек з товарами — залишки повернуться.'))return;
+  try{
+    const rec=R.find(r=>r.id===id);
+    if(rec&&rec.check_items&&Array.isArray(rec.check_items)&&rec.check_items.length){
+      await lP();
+      for(const c of rec.check_items){
+        const prod=P.find(p=>p.id===c.id);if(!prod)continue;
+        const newQty=(+prod.quantity||0)+(+c.qty||0);
+        const newTotal=newQty*(+(prod.price||0));
+        await D.from('products').update({quantity:newQty,total:newTotal}).eq('id',c.id);
+      }
+    }
+    await D.from('records').delete().eq('id',id);
+    await Promise.all([lR(),lP()]);
+  }catch(e){alert('Помилка видалення: '+e.message)}}
+async function cNF(){for(const r of R.filter(r=>r.doc_date.startsWith(String(Y))&&r.is_new))await D.from('records').update({is_new:false}).eq('id',r.id);await lR()}
+async function addProd(){const n=$('pn').value.trim(),q=parseInt($('pq').value)||0,p=parseFloat($('pp').value)||0,i=$('pi').value.trim(),s=$('psp').value.trim();
+if(!n){sm('fm2','Введіть назву','var(--rd)');return}
+const{error}=await D.from('products').insert({name:n,quantity:q,price:p,total:q*p,invoice_num:i,supplier:s,is_new:true,added_by:U});
+if(error){sm('fm2','Помилка: '+error.message,'var(--rd)');return}sm('fm2','Додано!','var(--gn)');$('pn').value='';$('pq').value='';$('pp').value='';$('pi').value='';$('psp').value='';await lP()}
+async function dP(id){if(!confirm('Видалити?'))return;await D.from('products').delete().eq('id',id);await lP()}
+async function cPNF(){for(const p of P.filter(p=>p.is_new))await D.from('products').update({is_new:false}).eq('id',p.id);await lP()}
+function sm(id,t,c){const e=$(id);e.textContent=t;e.style.color=c;setTimeout(()=>e.textContent='',3000)}
+function eCSV(){const f=R.filter(r=>r.doc_date.startsWith(String(Y)));const rr=[['Дата','Вид','№','Постачальник','Надходження','Вибуття']];f.forEach(r=>rr.push([r.doc_date,r.doc_type,r.doc_num,r.supplier,r.nadhodjennya||'',r.vybuttya||'']));dl(rr,'Форма2_'+Y+'.csv')}
+function ePCSV(){const rr=[['Назва','Кількість','Ціна','Сума','Накладна','Постачальник']];P.forEach(p=>rr.push([p.name,p.quantity,p.price,p.total,p.invoice_num||'',p.supplier||'']));dl(rr,'Товари.csv')}
+function dl(rr,fn){const c='\uFEFF'+rr.map(r=>r.join(';')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:'text/csv;charset=utf-8'}));a.download=fn;a.click()}
+
+// ---- EXCEL UPLOAD ----
+function handleFile(inp){
+  const file=inp.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{parseInvoice(e.target.result)}catch(err){alert('Помилка розпізнавання: '+err.message)}
+  };
+  reader.readAsArrayBuffer(file);
+  inp.value='';
+}
+
+function toNum(v){if(typeof v==='number')return v;if(typeof v==='string'){const n=parseFloat(v.replace(/\s/g,'').replace(',','.'));return isNaN(n)?0:n}return 0}
+
+function parseInvoice(data){
+  const wb=XLSX.read(data,{type:'array'});
+  const ws=wb.Sheets[wb.SheetNames[0]];
+  const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:true});
+  
+  let invNum='',invDate='',supplier='',total=0,items=[];
+  
+  // 1. Try to find header info (invoice number, date, supplier)
+  for(let i=0;i<Math.min(15,rows.length);i++){
+    const row=rows[i];
+    const txt=row.join(' ');
+    const nm=txt.match(/[Нн]акладна\s*[№#]\s*(\S+)\s*від\s*(\d{1,2})\s*([\wіїєґ]+)\s*(\d{4})/i);
+    if(nm){
+      invNum=nm[1];
+      const months={'січня':1,'лютого':2,'березня':3,'квітня':4,'травня':5,'червня':6,'липня':7,'серпня':8,'вересня':9,'жовтня':10,'листопада':11,'грудня':12};
+      const mon=months[nm[3].toLowerCase()]||1;
+      invDate=nm[4]+'-'+String(mon).padStart(2,'0')+'-'+nm[2].padStart(2,'0');
+    }
+    if(txt.match(/[Пп]остачальник/i)){
+      for(let j=1;j<row.length;j++){
+        if(row[j]&&typeof row[j]==='string'&&row[j].length>2&&!row[j].match(/постачальник/i)){
+          supplier=row[j].trim();break;
+        }
+      }
+    }
+  }
+  
+  // 2. Detect format: check if first row has a number + long text (no-header format)
+  let headerRow=-1;
+  for(let i=0;i<rows.length;i++){
+    const txt=rows[i].join(' ').toLowerCase();
+    if(txt.includes('товар')&&(txt.includes('кількість')||txt.includes('ціна')||txt.includes('сума'))){
+      headerRow=i;break;
+    }
+  }
+  
+  // 3. Detect columns from header or use known positions
+  let colName=-1,colQty=-1,colPrice=-1,colSum=-1;
+  if(headerRow>=0){
+    const hr=rows[headerRow];
+    for(let j=0;j<hr.length;j++){
+      const v=String(hr[j]).toLowerCase();
+      if(v.includes('товар'))colName=j;
+      if(v.includes('кількість'))colQty=j;
+      if(v.includes('ціна'))colPrice=j;
+      if(v.includes('сума'))colSum=j;
+    }
+  }
+  
+  // 4. Parse rows
+  const startRow=headerRow>=0?headerRow+1:0;
+  for(let i=startRow;i<rows.length;i++){
+    const row=rows[i];
+    const txt=row.join(' ');
+    if(txt.match(/разом|всього найменувань/i)){
+      for(let j=row.length-1;j>=0;j--){const v=toNum(row[j]);if(v>0){total=v;break}}
+      break;
+    }
+    
+    let num=null,name='',qty=0,price=0,sum=0;
+    
+    if(colName>=0){
+      name=String(row[colName]||'').trim();
+      for(let j=0;j<Math.min(3,row.length);j++){const v=toNum(row[j]);if(v>=1&&v<=999){num=v;break}}
+      if(colQty>=0)qty=toNum(row[colQty]);
+      if(colPrice>=0)price=toNum(row[colPrice]);
+      if(colSum>=0)sum=toNum(row[colSum]);
+    } else {
+      // Heuristic for files without header — scan each cell
+      const nums=[];const strs=[];
+      for(let j=0;j<row.length;j++){
+        const v=row[j];
+        const n=toNum(v);
+        if(typeof v==='string'&&v.trim().length>5&&!strs.length){strs.push({j,v:v.trim()});continue}
+        if(n>0){nums.push({j,v:n});continue}
+      }
+      // Pattern: first small number = row#, first long string = name, then qty, skip 'шт', price, sum
+      if(nums.length>=3&&strs.length>=1){
+        // Find row number (small, first)
+        const rowNum=nums.find(n=>n.v>=1&&n.v<=999);
+        if(rowNum)num=rowNum.v;
+        name=strs[0].v.replace(/\n/g,' ');
+        // Remaining numbers after name, excluding row number
+        const dataNumbers=nums.filter(n=>n!==rowNum&&n.j>strs[0].j);
+        if(dataNumbers.length>=3){qty=dataNumbers[0].v;price=dataNumbers[1].v;sum=dataNumbers[2].v}
+        else if(dataNumbers.length===2){qty=dataNumbers[0].v;sum=dataNumbers[1].v;price=qty>0?sum/qty:0}
+        else if(dataNumbers.length===1){sum=dataNumbers[0].v}
+      }
+    }
+    
+    if(num&&name&&name.length>3){
+      name=name.replace(/\n/g,' ').replace(/\s+/g,' ').trim();
+      if(!sum&&qty&&price)sum=Math.round(qty*price*100)/100;
+      if(!price&&qty&&sum)price=Math.round(sum/qty*100)/100;
+      items.push({num,name,qty,price,sum});
+    }
+  }
+  
+  if(!total&&items.length)total=Math.round(items.reduce((s,it)=>s+it.sum,0)*100)/100;
+  if(!invDate)invDate=new Date().toISOString().slice(0,10);
+  
+  UP_DATA={invNum,invDate,supplier,total,items};
+  showUploadModal();
+}
+
+function showUploadModal(){
+  const d=UP_DATA;
+  $('um-title').textContent='Завантаження накладної';
+  $('um-sub').textContent=d.items.length+' товарів · Перевірте дані та натисніть "Підтвердити"';
+  $('um-info').innerHTML=
+    '<div class="mi"><span>Дата</span><input id="um-date" type="date" value="'+d.invDate+'" style="background:var(--sf2);border:1px solid var(--bd);border-radius:6px;color:var(--tx);padding:6px 8px;font-size:14px;font-family:inherit;width:100%"></div>'+
+    '<div class="mi"><span>Номер накладної</span><input id="um-num" value="'+d.invNum+'" placeholder="Введіть номер" style="background:var(--sf2);border:1px solid var(--bd);border-radius:6px;color:var(--tx);padding:6px 8px;font-size:14px;font-family:inherit;width:100%"></div>'+
+    '<div class="mi"><span>Постачальник</span><input id="um-sup" value="'+(d.supplier||'')+'" placeholder="Введіть постачальника" style="background:var(--sf2);border:1px solid var(--bd);border-radius:6px;color:var(--tx);padding:6px 8px;font-size:14px;font-family:inherit;width:100%"></div>'+
+    '<div class="mi"><span>Загальна сума</span><strong style="color:var(--gn)">'+fmt(d.total)+' ₴</strong></div>';
+  let h='';
+  d.items.forEach(it=>{
+    h+='<tr><td>'+it.num+'</td><td style="white-space:normal;max-width:300px">'+it.name+'</td><td class="r">'+it.qty+'</td><td class="r">'+fmt(it.price)+'</td><td class="r ag">'+fmt(it.sum)+'</td></tr>';
+  });
+  h+='<tr class="sr"><td colspan="4" style="text-align:right">Разом:</td><td class="r ag">'+fmt(d.total)+'</td></tr>';
+  $('um-tb').innerHTML=h;
+  $('um-msg').textContent='';
+  $('umod').classList.add('open');
+}
+
+function closeModal(){$('umod').classList.remove('open');UP_DATA=null}
+
+async function confirmUpload(){
+  const d=UP_DATA;if(!d)return;
+  const invDate=$('um-date').value||d.invDate;
+  const invNum=$('um-num').value.trim()||d.invNum;
+  const sup=$('um-sup').value.trim()||d.supplier;
+  if(!invNum){$('um-msg').textContent='Введіть номер накладної';$('um-msg').style.color='var(--rd)';return}
+  $('um-ok').disabled=true;$('um-msg').textContent='Завантаження...';$('um-msg').style.color='var(--ac)';
+  
+  try{
+    const{error:e1}=await D.from('records').insert({
+      doc_date:invDate,doc_type:'Прибуткова накладна',doc_num:invNum,
+      supplier:sup,nadhodjennya:d.total,vybuttya:0,is_new:true,added_by:U
+    });
+    if(e1)throw e1;
+    
+    await lP();
+    let added=0,merged=0;
+    for(const it of d.items){
+      const name=it.name.replace(/\n/g,' ').replace(/\s+/g,' ').trim();
+      const existing=P.find(p=>p.name.trim().toLowerCase()===name.toLowerCase());
+      if(existing){
+        const newQty=(+existing.quantity||0)+it.qty;
+        const newTotal=newQty*(+existing.price||it.price);
+        await D.from('products').update({quantity:newQty,total:newTotal}).eq('id',existing.id);
+        merged++;
+      } else {
+        await D.from('products').insert({name,quantity:it.qty,price:it.price,total:it.sum,
+          invoice_num:invNum,supplier:sup,is_new:true,added_by:U});
+        added++;
+      }
+    }
+    
+    $('um-msg').textContent='Готово! Нових: '+added+', оновлено: '+merged;$('um-msg').style.color='var(--gn)';
+    await Promise.all([lR(),lP()]);
+    Y=parseInt(invDate.slice(0,4));
+    setTimeout(()=>{closeModal();go('rec')},1500);
+  }catch(err){
+    $('um-msg').textContent='Помилка: '+err.message;$('um-msg').style.color='var(--rd)';
+  }
+  $('um-ok').disabled=false;
+}
+
+function viewCheck(id){
+  const rec=R.find(r=>r.id===id);if(!rec)return;
+  $('chk-title').textContent='Фіскальний чек №'+(rec.doc_num||'—')+' від '+rec.doc_date;
+  $('chk-sub').textContent='Сума: '+fmt(rec.vybuttya)+' ₴ · Додав: '+(rec.added_by||'—');
+  let h='';
+  if(rec.check_items&&Array.isArray(rec.check_items)&&rec.check_items.length){
+    h='<table style="width:100%;font-size:13px"><thead><tr><th style="text-align:left">Товар</th><th class="r">К-сть</th></tr></thead><tbody>';
+    rec.check_items.forEach(c=>{
+      h+='<tr><td style="white-space:normal">'+c.name+'</td><td class="r" style="color:var(--or);font-weight:700">'+c.qty+' шт</td></tr>';
+    });
+    h+='</tbody></table>';
+  } else {
+    h='<div style="color:var(--tx2);padding:20px;text-align:center">Деталізація товарів відсутня (чек був створений без вибору товарів)</div>';
+  }
+  $('chk-body').innerHTML=h;
+  $('chkmod').classList.add('open');
+}
+
+window.onerror=function(){$('setup').style.display='block'};
+window.addEventListener('scroll',()=>{$('gotop').style.display=window.scrollY>300?'block':'none'});
+try{init()}catch(e){$('setup').style.display='block'}
+</script>
+</body>
+</html>
