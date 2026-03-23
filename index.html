@@ -66,6 +66,7 @@ tr.zq{opacity:.4}
 .badge{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700}
 .bi{background:rgba(45,212,160,.08);color:var(--gn);border:1px solid rgba(45,212,160,.2)}
 .bc{background:rgba(79,140,255,.12);color:var(--ac)}
+.br{background:rgba(180,142,255,.1);color:var(--pp);border:1px solid rgba(180,142,255,.2)}
 .bs{background:rgba(180,142,255,.1);color:var(--pp);font-size:12px;font-weight:700;padding:4px 10px;white-space:nowrap}
 #ptb td:nth-child(2),#ptb td:nth-child(3),#ptb td:nth-child(4){text-align:right;min-width:80px}
 #tb td:nth-child(5),#tb td:nth-child(6){text-align:right;min-width:100px}
@@ -132,7 +133,7 @@ th.r{text-align:right;min-width:100px}
     <div class="af" id="af-rec">
       <div class="fg">
         <div><label>Дата</label><input type="date" id="fd"></div>
-        <div><label>Тип</label><select id="ft" onchange="taf()"><option value="Фіскальний чек">Фіскальний чек</option><option value="Прибуткова накладна">Прибуткова накладна</option></select></div>
+        <div><label>Тип</label><select id="ft" onchange="taf()"><option value="Фіскальний чек">Фіскальний чек</option><option value="Рахунок на оплату">Рахунок на оплату</option><option value="Прибуткова накладна">Прибуткова накладна</option></select></div>
         <div><label>№</label><input id="fn" placeholder="Номер"></div>
         <div><label>Постачальник</label><input id="fs" value="ФОП Гончарова О.Е.(3442813583)"></div>
         <div id="fgh" class="hide"><label>Надходження, грн</label><input type="number" step="0.01" id="fh"></div>
@@ -245,12 +246,13 @@ else e.innerHTML='<button class="b bpp" onclick="tf(\'prod\')">+ Товар</but
 
 function uRec(){rYT();rSt();rTb();const f=R.filter(r=>r.doc_date.startsWith(String(Y)));$('fti').textContent='Записів: '+f.length+' · Нових: '+f.filter(r=>r.is_new).length+' · Всього: '+R.length;ha('rec')}
 function rYT(){const yy=[...new Set(R.map(r=>parseInt(r.doc_date.slice(0,4))))].sort();if(!yy.includes(Y)&&yy.length)Y=yy[yy.length-1];$('ytabs').innerHTML=yy.map(y=>'<button class="st'+(y===Y?' on':'')+'" onclick="Y='+y+';uRec()">'+y+'</button>').join('');$('ytabs').style.display=PG==='rec'?'flex':'none'}
-function rSt(){const f=R.filter(r=>r.doc_date.startsWith(String(Y)));let h=0,i=0,c=0,v=0;f.forEach(r=>{h+=+(r.nadhodjennya||0);i+=+(r.vybuttya||0);r.doc_type==='Фіскальний чек'?c++:v++});
-$('sr').innerHTML='<div class="sc"><div class="sl">Надходження '+Y+'</div><div class="sv g">'+fmt(h)+' ₴</div></div><div class="sc"><div class="sl">Вибуття '+Y+'</div><div class="sv r">'+fmt(i)+' ₴</div></div><div class="sc"><div class="sl">Чеків</div><div class="sv">'+c+'</div></div><div class="sc"><div class="sl">Накладних</div><div class="sv">'+v+'</div></div>'}
+function rSt(){const f=R.filter(r=>r.doc_date.startsWith(String(Y)));let h=0,i=0,c=0,v=0,rr=0;f.forEach(r=>{h+=+(r.nadhodjennya||0);i+=+(r.vybuttya||0);if(r.doc_type==='Фіскальний чек')c++;else if(r.doc_type==='Рахунок на оплату')rr++;else v++});
+$('sr').innerHTML='<div class="sc"><div class="sl">Надходження '+Y+'</div><div class="sv g">'+fmt(h)+' ₴</div></div><div class="sc"><div class="sl">Вибуття '+Y+'</div><div class="sv r">'+fmt(i)+' ₴</div></div><div class="sc"><div class="sl">Чеків</div><div class="sv">'+c+'</div></div><div class="sc"><div class="sl">Рахунків</div><div class="sv p">'+rr+'</div></div><div class="sc"><div class="sl">Накладних</div><div class="sv">'+v+'</div></div>'}
 function rTb(){const f=R.filter(r=>r.doc_date.startsWith(String(Y)));const g={};f.forEach(r=>{const m=parseInt(r.doc_date.slice(5,7));if(!g[m])g[m]=[];g[m].push(r)});let html='',gH=0,gI=0;
 Object.keys(g).sort((a,b)=>b-a).forEach(m=>{const rr=g[m];let mH=0,mI=0;rr.forEach(r=>{mH+=+(r.nadhodjennya||0);mI+=+(r.vybuttya||0)});gH+=mH;gI+=mI;
-rr.forEach(r=>{const iv=r.doc_type!=='Фіскальний чек',h=+(r.nadhodjennya||0),i=+(r.vybuttya||0);
-html+='<tr class="'+(r.is_new?'nr':'')+'" style="cursor:pointer" onclick="viewCheck(\''+r.id+'\')" title="Натисніть щоб переглянути товари"'+'><td>'+r.doc_date+'</td><td><span class="badge '+(iv?'bi':'bc')+'">'+(iv?'Прибуткова':'Фіск. чек')+'</span></td><td class="nc">'+((r.doc_num)||'')+'</td><td class="supc">'+((r.supplier)||'')+'</td><td class="r '+(h?'ag':'ad')+'">'+(h?fmt(h):'—')+'</td><td class="r '+(i?'ar':'ad')+'">'+(i?fmt(i):'—')+'</td><td>'+(canDel(r)?'<button class="db" onclick="event.stopPropagation();dR(\''+r.id+'\')">✕</button>':'')+'</td></tr>'});
+rr.forEach(r=>{const iv=r.doc_type==='Прибуткова накладна',ir=r.doc_type==='Рахунок на оплату',h=+(r.nadhodjennya||0),i=+(r.vybuttya||0);
+const badgeCls=iv?'bi':ir?'br':'bc';const badgeTxt=iv?'Прибуткова':ir?'Рахунок':'Фіск. чек';
+html+='<tr class="'+(r.is_new?'nr':'')+'" style="cursor:pointer" onclick="viewCheck(\''+r.id+'\')" title="Натисніть щоб переглянути товари"'+'><td>'+r.doc_date+'</td><td><span class="badge '+badgeCls+'">'+badgeTxt+'</span></td><td class="nc">'+((r.doc_num)||'')+'</td><td class="supc">'+((r.supplier)||'')+'</td><td class="r '+(h?'ag':'ad')+'">'+(h?fmt(h):'—')+'</td><td class="r '+(i?'ar':'ad')+'">'+(i?fmt(i):'—')+'</td><td>'+(canDel(r)?'<button class="db" onclick="event.stopPropagation();dR(\''+r.id+'\')">✕</button>':'')+'</td></tr>'});
 html+='<tr class="sr"><td colspan="4" style="text-align:right">Разом за '+MN[m]+' '+Y+':</td><td class="r ag">'+(mH?fmt(mH):'—')+'</td><td class="r ar">'+(mI?fmt(mI):'—')+'</td><td></td></tr>'});
 html+='<tr class="gr"><td colspan="4" style="text-align:right;color:var(--ac)">РАЗОМ за '+Y+':</td><td class="r" style="color:var(--gn)">'+fmt(gH)+'</td><td class="r" style="color:var(--rd)">'+fmt(gI)+'</td><td></td></tr>';
 $('tb').innerHTML=html}
@@ -270,7 +272,7 @@ $('ptb').innerHTML=h}
 function tf(p){$(p==='rec'?'af-rec':'af-prod').classList.toggle('open');if(p==='rec'){if(!$('fd').value)$('fd').value=new Date().toISOString().slice(0,10);checkItems=[];renderCheckItems();lP().then(fillProdList)}window.scrollTo({top:0,behavior:'smooth'})}
 let checkItems=[];
 function fillProdList(){const dl=$('prod-list');dl.innerHTML='';const seen={};const names={};P.filter(p=>p.quantity>0).forEach(p=>{const k=normName(p.name);if(!seen[k])seen[k]=0;seen[k]+=+(p.quantity||0);if(!names[k])names[k]=p.name.replace(/\s+/g,' ').trim()});Object.entries(seen).forEach(([k,q])=>{const o=document.createElement('option');o.value=names[k];o.label=names[k]+' ('+q+' шт)';dl.appendChild(o)})}
-function taf(){const t=$('ft').value;const isP=t==='Прибуткова накладна';$('fgh').classList.toggle('hide',!isP);$('fc-picker').style.display=isP?'none':'block';$('fs').value=isP?'':'ФОП Гончарова О.Е.(3442813583)';checkItems=[];renderCheckItems();if(!isP)toggleKind()}
+function taf(){const t=$('ft').value;const isP=t==='Прибуткова накладна';const isR=t==='Рахунок на оплату';$('fgh').classList.toggle('hide',!isP);$('fc-picker').style.display=isP?'none':'block';$('fs').value=isP?'':isR?'':'ФОП Гончарова О.Е.(3442813583)';checkItems=[];renderCheckItems();if(isR){$('fc-kind').value='product';toggleKind();$('fc-kind').style.display='none'}else{$('fc-kind').style.display='';if(!isP)toggleKind()}}
 function toggleKind(){const isSvc=$('fc-kind').value==='service';$('fc-product-section').style.display=isSvc?'none':'block';$('fc-service-section').style.display=isSvc?'block':'none'}
 function normName(s){return s.replace(/\s+/g,' ').trim().toLowerCase()}
 function addToCheck(){const name=$('fc-prod').value.trim();const qty=parseInt($('fc-qty').value)||1;if(!name)return;
@@ -301,6 +303,31 @@ if(t==='Прибуткова накладна'){
   const h=parseFloat($('fh').value)||0;
   const{error}=await D.from('records').insert({doc_date:d,doc_type:t,doc_num:n,supplier:s,nadhodjennya:h,vybuttya:0,is_new:true,added_by:U});
   if(error)throw new Error(error.message);
+} else if(t==='Рахунок на оплату'){
+  // Рахунок — списання товарів без фіскалізації
+  const total=parseFloat($('fc-sum').value)||0;
+  if(!total){sm('fm1','Введіть суму рахунку','var(--rd)');return}
+  if(!checkItems.length){sm('fm1','Додайте хоча б один товар','var(--rd)');return}
+  const ciJson=checkItems.map(c=>({id:c.id,name:c.name,qty:c.qty}));
+  await lP();
+  for(const c of checkItems){
+    const prod=P.find(p=>p.id===c.id);
+    const avail=prod?(+prod.quantity||0):0;
+    if(avail<c.qty){sm('fm1','Недостатньо "'+c.name+'" (є '+avail+', потрібно '+c.qty+')','var(--rd)');return}
+  }
+  const ins=await D.from('records').insert({doc_date:d,doc_type:t,doc_num:n,supplier:s,nadhodjennya:0,vybuttya:total,is_new:true,added_by:U,check_items:ciJson});
+  if(ins.error){
+    const ins2=await D.from('records').insert({doc_date:d,doc_type:t,doc_num:n,supplier:s,nadhodjennya:0,vybuttya:total,is_new:true,added_by:U});
+    if(ins2.error)throw new Error(ins2.error.message);
+  }
+  let ok=0;
+  for(const c of checkItems){
+    const prod=P.find(p=>p.id===c.id);if(!prod)continue;
+    const nq=Math.max(0,(+prod.quantity||0)-c.qty);const nt=nq*(+(prod.price||0));
+    const u=await D.from('products').update({quantity:nq,total:nt}).eq('id',c.id);
+    if(!u.error)ok++;
+  }
+  msg='Додано рахунок! Списано '+ok+' товарів';
 } else {
   const total=parseFloat($('fc-sum').value)||0;
   if(!total){sm('fm1','Введіть суму чека','var(--rd)');return}
@@ -339,8 +366,8 @@ if(t==='Прибуткова накладна'){
   }
 }
 }catch(err){sm('fm1','Помилка: '+err.message,'var(--rd)');return}
-sm('fm1',msg,'var(--gn)');$('fn').value='';$('fh').value='';$('fc-sum').value='';$('fc-svc-name').value='';$('fc-kind').value='product';toggleKind();checkItems=[];renderCheckItems();Y=parseInt(d.slice(0,4));await Promise.all([lR(),lP()])}
-async function dR(id){if(!confirm('Видалити запис?\nЯкщо це фіскальний чек з товарами — залишки повернуться.'))return;
+sm('fm1',msg,'var(--gn)');$('fn').value='';$('fh').value='';$('fc-sum').value='';$('fc-svc-name').value='';$('fc-kind').value='product';$('fc-kind').style.display='';toggleKind();checkItems=[];renderCheckItems();Y=parseInt(d.slice(0,4));await Promise.all([lR(),lP()])}
+async function dR(id){if(!confirm('Видалити запис?\nЯкщо це чек або рахунок з товарами — залишки повернуться.'))return;
   try{
     const rec=R.find(r=>r.id===id);
     if(rec&&rec.check_items&&Array.isArray(rec.check_items)&&rec.check_items.length){
@@ -552,7 +579,9 @@ async function confirmUpload(){
 function viewCheck(id){
   const rec=R.find(r=>r.id===id);if(!rec)return;
   const isInv=rec.doc_type==='Прибуткова накладна';
-  $('chk-title').textContent=(isInv?'Прибуткова накладна №':'Фіскальний чек №')+(rec.doc_num||'—')+' від '+rec.doc_date;
+  const isRah=rec.doc_type==='Рахунок на оплату';
+  const docTitle=isInv?'Прибуткова накладна':isRah?'Рахунок на оплату':'Фіскальний чек';
+  $('chk-title').textContent=docTitle+' №'+(rec.doc_num||'—')+' від '+rec.doc_date;
   const sumVal=isInv?rec.nadhodjennya:rec.vybuttya;
   $('chk-sub').textContent='Сума: '+fmt(sumVal)+' ₴ · '+(rec.supplier?rec.supplier+' · ':'')+'Додав: '+(rec.added_by||'—');
   let h='';
