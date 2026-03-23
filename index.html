@@ -135,7 +135,7 @@ th.r{text-align:right;min-width:100px}
         <div><label>Дата</label><input type="date" id="fd"></div>
         <div><label>Тип</label><select id="ft" onchange="taf()"><option value="Фіскальний чек">Фіскальний чек</option><option value="Рахунок на оплату">Рахунок на оплату</option><option value="Прибуткова накладна">Прибуткова накладна</option></select></div>
         <div><label>№</label><input id="fn" placeholder="Номер"></div>
-        <div><label>Постачальник</label><input id="fs" value="ФОП Гончарова О.Е.(3442813583)"></div>
+        <div><label id="fs-label">Постачальник</label><input id="fs" value="ФОП Гончарова О.Е.(3442813583)"></div>
         <div id="fgh" class="hide"><label>Надходження, грн</label><input type="number" step="0.01" id="fh"></div>
       </div>
       <!-- FISCAL CHECK -->
@@ -272,7 +272,7 @@ $('ptb').innerHTML=h}
 function tf(p){$(p==='rec'?'af-rec':'af-prod').classList.toggle('open');if(p==='rec'){if(!$('fd').value)$('fd').value=new Date().toISOString().slice(0,10);checkItems=[];renderCheckItems();lP().then(fillProdList)}window.scrollTo({top:0,behavior:'smooth'})}
 let checkItems=[];
 function fillProdList(){const dl=$('prod-list');dl.innerHTML='';const seen={};const names={};P.filter(p=>p.quantity>0).forEach(p=>{const k=normName(p.name);if(!seen[k])seen[k]=0;seen[k]+=+(p.quantity||0);if(!names[k])names[k]=p.name.replace(/\s+/g,' ').trim()});Object.entries(seen).forEach(([k,q])=>{const o=document.createElement('option');o.value=names[k];o.label=names[k]+' ('+q+' шт)';dl.appendChild(o)})}
-function taf(){const t=$('ft').value;const isP=t==='Прибуткова накладна';const isR=t==='Рахунок на оплату';$('fgh').classList.toggle('hide',!isP);$('fc-picker').style.display=isP?'none':'block';$('fs').value=isP?'':isR?'':'ФОП Гончарова О.Е.(3442813583)';checkItems=[];renderCheckItems();if(isR){$('fc-kind').value='product';toggleKind();$('fc-kind').style.display='none'}else{$('fc-kind').style.display='';if(!isP)toggleKind()}}
+function taf(){const t=$('ft').value;const isP=t==='Прибуткова накладна';const isR=t==='Рахунок на оплату';$('fgh').classList.toggle('hide',!isP);$('fc-picker').style.display=isP?'none':'block';$('fs').value=isP?'':isR?'':'ФОП Гончарова О.Е.(3442813583)';$('fs-label').textContent=isR?'Покупець':'Постачальник';$('fs').placeholder=isR?'ПІБ або назва компанії':'';checkItems=[];renderCheckItems();if(isR){$('fc-kind').value='product';toggleKind();$('fc-kind').style.display='none'}else{$('fc-kind').style.display='';if(!isP)toggleKind()}}
 function toggleKind(){const isSvc=$('fc-kind').value==='service';$('fc-product-section').style.display=isSvc?'none':'block';$('fc-service-section').style.display=isSvc?'block':'none'}
 function normName(s){return s.replace(/\s+/g,' ').trim().toLowerCase()}
 function addToCheck(){const name=$('fc-prod').value.trim();const qty=parseInt($('fc-qty').value)||1;if(!name)return;
